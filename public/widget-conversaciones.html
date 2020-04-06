@@ -1,0 +1,116 @@
+
+<div id="widget-productos" >
+    <button class="btn" onclick="cargarConversaciones()" >Actualizar</button>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Usuario/Vendedor</th>
+            <th>Ver Chat</th>
+            <th class="col-md-1"></th>
+        </tr>
+        </thead>
+        <tbody id="tablaCuerpo">
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+
+    var productos;
+    var mostrar=[];
+
+    function cargarConversaciones() {
+        cargarProductos()
+    }
+    function cargarProductos(){
+        $.ajax({
+            url: URLbase + "/misproducto",
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token },
+            success: function(respuesta) {
+                productos = respuesta;
+                montarTabla(productos);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+
+    //TODO la tabla de conversaciones muestra mas cosas de las que deberia
+    function montarTabla(productos){
+        for (var i = 0; i < productos.length; i++) {
+            $.ajax({
+                ajaxI:i,
+                ajaxPro:productos,
+                url: URLbase + "/conversacion",
+                type: "GET",
+                data: { },
+                dataType: 'json',
+                headers: { "token": token,"id_oferta":productos[i]._id },
+                success: function(respuesta) {
+                    var l=this.ajaxI
+                    var producta=this.ajaxPro
+                    //TODO no se puede hacer un console.log para ver que mete
+                    //TODO pero la api esta bien
+                    //console.log(respuesta,producta[l]_id,producta[l].nombre);
+                    mostrar.push({
+                        usuario:respuesta,
+                        oferta:producta[l]._id,
+                        ofertaN:producta[l].nombre
+                    });
+                    console.log(mostrar)
+                    if(producta.length==l+1){
+                        $.ajax({
+                            url: URLbase + "/misconversaciones",
+                            type: "GET",
+                            data: { },
+                            dataType: 'json',
+                            headers: { "token": token},
+                            success: function(respuesta2) {
+                                for (var k = 0; k < respuesta2.length; k++) {
+                                    //TODO no se puede hacer un console.log para ver que mete
+                                    //TODO pero la api esta bien
+                                    //console.log(respuesta2[k].vendedor,respuesta2[k]._id,respuesta2[k].nombre);
+                                    mostrar.push({
+                                        usuario: respuesta2[k].vendedor,
+                                        oferta: respuesta2[k]._id,
+                                        ofertaN: respuesta2[k].nombre
+                                    })
+                                    console.log(mostrar)
+                                    if(k+1==respuesta2.length){
+                                        actualizarTabla(mostrar);
+                                    }
+                                }
+                            },
+                            error : function (error){
+                                $( "#contenedor-principal" ).load("widget-login.html");
+                            }
+                        });
+                    }
+                },
+                error : function (error){
+                    $( "#contenedor-principal" ).load("widget-login.html");
+                }
+            });
+        }
+    }
+
+    function actualizarTabla(mensajes){
+        $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
+        for (i = 0; i < mostrar.length; i++) {
+            $( "#tablaCuerpo" ).append(
+                "<tr id="+mostrar[i].oferta+">"+
+                "<td>"+mostrar[i].ofertaN+"</td>" +
+                "<td>"+mostrar[i].usuario+"</td>" +
+                "<td><a onclick=enviarMensaje('"+mostrar[i].oferta,mostrar[i].usuario+"')>Reanudar Chat</a></td>"+
+                "</tr>" );
+
+        }
+    }
+    cargarConversaciones();
+</script>

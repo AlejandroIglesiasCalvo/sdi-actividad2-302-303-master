@@ -1,0 +1,34 @@
+{% extends "base.html" %} 
+
+{% block titulo %} Detalles {{ producto.nombre }} {% endblock %}
+
+{% block contenido_principal %}
+	 <div class="row">
+		<div class="media col-xs-10">
+		  <div class="media-left media-middle">
+			<img class="media-object" src={{ productos.imagen }}>
+		  </div>
+		  <div class="media-body">
+			  <h2>{{ productos.nombre }}</h2>
+			  <p>Vendedor: {{ productos.vendedor }}</p>
+			  <p>Descripción: {{ productos.descripcion }}</p>
+			  <p>Fecha: {{ productos.fecha }}</p>
+			  <a class="btn btn-primary pull-right"
+				 href="/producto/comprar/{{productos._id.toString()}}">{{ productos.precio
+				  }} €</a>
+			 <!-- Cambiar el precio por "reproducir" si ya está comprada -->
+		  </div>
+		</div>
+	  </div>
+	  
+	 <!-- -->
+	 <div class="row" style="margin-top: 20px;" >
+		<div class="media col-xs-10">
+			  <div class="media-left media-middle">
+				<a href="#">
+				  <img class="media-object" src="img/user.png" >
+				</a>
+			  </div>
+		  </div>
+	  </div>
+{% endblock %}

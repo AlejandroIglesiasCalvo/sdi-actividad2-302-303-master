@@ -1,0 +1,93 @@
+
+<div id="widget-productos" >
+    <button class="btn" onclick="cargarProductos()" >Actualizar</button>
+    <button class="btn" onclick="cargarConversaciones()" >Ver Mis Conversaciones</button>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripcion</th>
+            <th>Precio</th>
+            <th>Vendedor</th>
+            <th>Enviar Mensaje</th>
+            <th class="col-md-1"></th>
+        </tr>
+        </thead>
+        <tbody id="tablaCuerpo">
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+    var productos;
+    var to;
+
+    function cargarProductos(){
+        $.ajax({
+            url: URLbase + "/producto",
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token },
+            success: function(respuesta) {
+                productos = respuesta;
+                actualizarTabla(productos);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+
+    function cargarConversaciones(){
+        $( "#contenedor-principal" ).load( "widget-conversaciones.html");
+    }
+
+    function actualizarTabla(productosMostrar){
+        $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
+        for (i = 0; i < productosMostrar.length; i++) {
+            $( "#tablaCuerpo" ).append(
+                "<tr id="+productosMostrar[i]._id+">"+
+                "<td>"+productosMostrar[i].nombre+"</td>" +
+                "<td>"+productosMostrar[i].descripcion+"</td>" +
+                "<td>"+productosMostrar[i].precio+"</td>" +
+                "<td>"+productosMostrar[i].vendedor+"</td>" +
+                "<td><a onclick=enviarMensaje('"+productosMostrar[i]._id+"')>Enviar Mensaje</a></td>"+
+                "</tr>" );
+
+        }
+    }
+
+    cargarProductos();
+
+    $("#enviar-mensaje").click(function(){
+        $.ajax({
+            url: URLbase + "/autentificar", type: "POST", data: {
+                email : $("#email").val(),
+                password : $("#password").val()
+            },
+            dataType: 'json',
+            success: function(respuesta) {
+                console.log(respuesta.token); // <- Prueba
+                token = respuesta.token;
+                $( "#contenedor-principal" ).load( "widget-productos.html");
+            },
+            error : function (error){
+                $("#widget-login" ).prepend("<div class='alert alert-danger'>Usuario no encontrado</div>");
+            }
+        });
+    });
+
+    function enviarMensaje(_id) {
+        id_oferta = _id;
+        to=usuario
+        $( "#contenedor-principal" ).load( "widget-mensajes.html");
+    }
+
+    function enviarMensaje(_id,to) {
+        to=to;
+        id_oferta = _id;
+        $( "#contenedor-principal" ).load( "widget-mensajes.html");
+    }
+</script>
